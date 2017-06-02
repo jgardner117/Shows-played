@@ -52,13 +52,22 @@
       tilematrixset: 'GoogleMapsCompatible_Level'
     });
     tiles.addTo(map);
+
     omnivore.csv('shows.csv')
     .on('ready', function(e) {
       console.log(e.target.toGeoJSON());
+      drawMap(e.target.toGeoJSON());
     })
     .on('error', function(e) {
       console.log(e.error[0].message);
-    }).addTo(map);
+    });
+
+
+    function drawMap(shows) {
+
+      var dataLayer = L.geoJson(shows).addTo(map);
+      map.fitBounds(dataLayer.getBounds());
+    }
 
   </script>
 </body>
