@@ -7,6 +7,7 @@
   <meta name='viewport' content='width=device-width, initial-scale=1'>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ==" crossorigin="" />
   <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css">
+  <link href="https://api.mapbox.com/mapbox-assembly/v0.13.0/assembly.min.css" rel="stylesheet">
 
 
   <style>
@@ -21,48 +22,60 @@
       height: 100%;
       width: 100%;
     }
+
   </style>
 </head>
 
 <body>
+
+  <div id="title" class='bg-gray-light border border--2 txt-bold txt-shadow-lighten25' align="center">Venues played
+    <br>
+    <p id='title-text' class='bg-gray-light txt-normal txt-s'>This map parses and displays locations of venues Jesse has played at from a CSV stored on the server. Click a point to learn more about the venue!</p>
+
+  </div>
   <div id="map"></div>
-  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js" integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg==" crossorigin=""></script>
-  <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
-  <script src='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
-
-  <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.2/papaparse.min.js"></script>
-  <script>
-    var map = L.map('map', {
-      center: [51.508, -0.11],
-      zoom: 15
-    });
-    var tiles = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    });
-    tiles.addTo(map);
-
-    omnivore.csv('shows.csv')
-      .on('ready', function(e) {
-        drawMap(e.target.toGeoJSON());
-      })
-      .on('error', function(e) {
-        console.log(e.error[0].message);
-      });
-
-    function drawMap(shows) {
-      var dataLayer = L.geoJson(shows).addTo(map);
-      dataLayer.on('click', function(e) {
-        var properties = e.layer.feature.properties;
-        L.popup()
-          .setContent('<b>Venue Name:</b> ' + properties.Name + '<br><b> Address: </b>' + properties.Address + '<br><b>Dates: </b>' + properties.Date)
-          .setLatLng(e.latlng)
-          .openOn(map);
-      }).addTo(map);
-      map.fitBounds(dataLayer.getBounds());
-    }
-  </script>
 </body>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js" integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg==" crossorigin=""></script>
+<script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
+<script src='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
+<script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.2/papaparse.min.js"></script>
+<script async defer src="https://api.mapbox.com/mapbox-assembly/v0.13.0/assembly.js"></script>
+<script>
+  var map = L.map('map', {
+    center: [51.508, -0.11],
+    zoom: 15
+  });
+  var tiles = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.{ext}', {
+  	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  	subdomains: 'abcd',
+  	minZoom: 0,
+  	maxZoom: 20,
+  	ext: 'png'
+  });
+  tiles.addTo(map);
+
+  omnivore.csv('shows.csv')
+    .on('ready', function(e) {
+      drawMap(e.target.toGeoJSON());
+    })
+    .on('error', function(e) {
+      console.log(e.error[0].message);
+    });
+
+  function drawMap(shows) {
+    var dataLayer = L.geoJson(shows).addTo(map);
+    dataLayer.on('click', function(e) {
+      var properties = e.layer.feature.properties;
+      L.popup()
+        .setContent('<b>Venue Name:</b> ' + properties.Name + '<br><b> Address: </b>' + properties.Address + '<br><b>Dates: </b>' + properties.Date)
+        .setLatLng(e.latlng)
+        .openOn(map);
+    }).addTo(map);
+    map.fitBounds(dataLayer.getBounds());
+  }
+</script>
+
 
 </html>
